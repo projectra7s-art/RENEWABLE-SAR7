@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RE-SIZER | تصميم نظام الطاقة المتجددة</title>
+
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin="">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          crossorigin=""></script>
+
+  <link rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">RE</div>
+    <div>
+      <strong>RE-SIZER</strong>
+      <span>Renewable Energy Sizing</span>
+    </div>
+  </div>
+
+  <div class="version">v{{ version }}</div>
+</header>
+
+
+<main class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <div class="eyebrow">
+        NASA POWER • PSO • PV • WIND • BATTERY
+      </div>
+
+      <h1>صمّم نظام الطاقة المتجددة لمنزلك</h1>
+
+      <p>
+        حدد موقع المنزل، أدخل استهلاك الكهرباء أو قيمة الفاتورة،
+        وحدد نسبة التغطية المطلوبة بالطاقة المتجددة، وسيجلب النظام
+        بيانات الشمس والرياح ثم يبحث بخوارزمية PSO عن تركيبة مناسبة
+        من الألواح والتوربينات والبطاريات.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- INPUT SECTION -->
+  <section class="grid two">
+
+    <!-- LOCATION -->
+    <div class="panel">
+
+      <div class="panel-title">
+        <span class="step">01</span>
+
+        <div>
+          <h2>حدد موقع المنزل</h2>
+          <p>اضغط على الخريطة لاختيار الموقع.</p>
+        </div>
+      </div>
+
+      <div id="map"></div>
+
+      <div class="location-box">
+        <div>
+          <span>Latitude</span>
+          <b id="latText">--</b>
+        </div>
+
+        <div>
+          <span>Longitude</span>
+          <b id="lonText">--</b>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- CONSUMPTION -->
+    <div class="panel">
+
+      <div class="panel-title">
+        <span class="step">02</span>
+
+        <div>
+          <h2>بيانات الاستهلاك</h2>
+          <p>الأدق هو إدخال kWh الظاهر في الفاتورة.</p>
+        </div>
+      </div>
+
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" data-mode="kwh">
+          إدخال kWh
+        </button>
+
+        <button class="tab" data-mode="bill">
+          قيمة الفاتورة
+        </button>
+      </div>
+
+
+      <!-- KWH -->
+      <div id="kwhFields">
+
+        <label for="monthlyKwh">
+          الاستهلاك الشهري (kWh)
+        </label>
+
+        <input
+          id="monthlyKwh"
+          type="number"
+          min="1"
+          step="1"
+          placeholder="مثال: 3000"
+        >
+
+      </div>
+
+
+      <!-- BILL -->
+      <div id="billFields" class="hidden">
+
+        <label for="billSar">
+          قيمة الفاتورة الشهرية (ريال)
+        </label>
+
+        <input
+          id="billSar"
+          type="number"
+          min="1"
+          step="1"
+          placeholder="مثال: 850"
+        >
+
+
+        <label class="mt" for="tariff">
+          التعرفة الفعالة المستخدمة للتقدير (ريال/kWh)
+        </label>
+
+        <input
+          id="tariff"
+          type="number"
+          min="0.01"
+          step="0.001"
+          value="0.18"
+        >
+
+
+        <div class="notice">
+
+          <strong>مهم:</strong>
+
+          قيمة الفاتورة ليست قدرة كهربائية.
+          في هذا الوضع نحسب kWh تقديريًا من الفاتورة
+          والتعرفة المدخلة.
+
+          للاستخدام الهندسي النهائي يفضّل إدخال
+          kWh من الفاتورة مباشرة.
+
+        </div>
+
+      </div>
+
+
+      <!-- TARGET RENEWABLE -->
+      <div class="target-box">
+
+        <label for="targetRenewable">
+          نسبة التغطية بالطاقة المتجددة المطلوبة (%)
+        </label>
+
+        <input
+          id="targetRenewable"
+          type="number"
+          min="1"
+          max="100"
+          step="1"
+          value="90"
+          placeholder="مثال: 90"
+        >
+
+        <small>
+          مثال: عند إدخال 90% سيبحث النظام عن نظام قادر
+          على تغطية حوالي 90% من استهلاك المنزل بالطاقة المتجددة.
+        </small>
+
+      </div>
+
+
+      <!-- YEAR -->
+      <label class="mt" for="year">
+        سنة بيانات NASA POWER
+      </label>
+
+      <input
+        id="year"
+        type="number"
+        min="2001"
+        max="2030"
+        value="2025"
+      >
+
+
+      <!-- RUN -->
+      <button id="runBtn" class="primary-btn">
+        تشغيل التحليل والتحسين PSO
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- LOADING -->
+  <section id="loading" class="panel hidden">
+
+    <div class="loader"></div>
+
+    <div>
+      <h2>جاري الحساب...</h2>
+
+      <p>
+        جاري جلب بيانات NASA POWER وتشغيل PSO
+        على البيانات الساعية.
+      </p>
+    </div>
+
+  </section>
+
+
+  <!-- RESULTS -->
+  <section id="results" class="hidden">
+
+    <div class="section-head">
+
+      <div>
+
+        <div class="eyebrow">
+          OPTIMIZATION RESULT
+        </div>
+
+        <h2>
+          التركيبة المقترحة
+        </h2>
+
+      </div>
+
+      <div
+        class="system-pill"
+        id="systemType">
+        --
+      </div>
+
+    </div>
+
+
+    <!-- RESULT CARDS -->
+    <div class="cards four">
+
+      <!-- PV -->
+      <div class="result-card">
+
+        <span>
+          ألواح PV
+        </span>
+
+        <strong id="pvPanels">
+          --
+        </strong>
+
+        <small id="pvKw">
+          --
+        </small>
+
+      </div>
+
+
+      <!-- WIND -->
+      <div class="result-card">
+
+        <span>
+          توربينات الرياح
+        </span>
+
+        <strong id="windTurbines">
+          --
+        </strong>
+
+        <small id="windKw">
+          --
+        </small>
+
+      </div>
+
+
+      <!-- BATTERY -->
+      <div class="result-card">
+
+        <span>
+          وحدات البطارية
+        </span>
+
+        <strong id="batteryUnits">
+          --
+        </strong>
+
+        <small id="batteryKwh">
+          --
+        </small>
+
+      </div>
+
+
+      <!-- RENEWABLE -->
+      <div class="result-card">
+
+        <span>
+          التغطية بالطاقة المتجددة
+        </span>
+
+        <strong id="renewableFraction">
+          --
+        </strong>
+
+        <small>
+          من إجمالي الطلب
+        </small>
+
+      </div>
+
+    </div>
+
+
+    <!-- WEATHER -->
+    <div class="grid two">
+
+      <div class="panel">
+
+        <h2>
+          ملخص الموقع والطقس
+        </h2>
+
+        <div class="metric-grid">
+
+          <div>
+            <span>NASA valid hours</span>
+            <b id="validHours">--</b>
+          </div>
+
+          <div>
+            <span>Average solar</span>
+            <b id="avgSolar">--</b>
+          </div>
+
+          <div>
+            <span>Average wind</span>
+            <b id="avgWind">--</b>
+          </div>
+
+          <div>
+            <span>Average load</span>
+            <b id="avgLoad">--</b>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- PERFORMANCE -->
+      <div class="panel">
+
+        <h2>
+          التكلفة والأداء
+        </h2>
+
+        <div class="metric-grid">
+
+          <div>
+            <span>التغطية المطلوبة</span>
+            <b id="targetFraction">--</b>
+          </div>
+
+          <div>
+            <span>Estimated capital cost</span>
+            <b id="capitalCost">--</b>
+          </div>
+
+          <div>
+            <span>Grid energy / year</span>
+            <b id="gridEnergy">--</b>
+          </div>
+
+          <div>
+            <span>Unserved energy</span>
+            <b id="unserved">--</b>
+          </div>
+
+          <div>
+            <span>Curtailed energy</span>
+            <b id="curtailed">--</b>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- CHART -->
+    <div class="panel">
+
+      <div class="panel-title inline">
+
+        <div>
+
+          <h2>
+            منحنى يومي تمثيلي
+          </h2>
+
+          <p>
+            متوسط السلوك الساعي خلال السنة، مع مقارنة
+            الحمل والطاقة المتجددة والطاقة المسحوبة من الشبكة.
+          </p>
+
+        </div>
+
+      </div>
+
+      <canvas
+        id="energyChart"
+        height="100">
+      </canvas>
+
+    </div>
+
+
+    <!-- INPUT SUMMARY -->
+    <div class="panel">
+
+      <h2>
+        بيانات الإدخال
+      </h2>
+
+      <div
+        class="input-summary"
+        id="inputSummary">
+      </div>
+
+    </div>
+
+
+    <!-- ENGINEERING NOTICE -->
+    <div class="panel notice">
+
+      <strong>
+        تنبيه هندسي:
+      </strong>
+
+      النتائج تقديرية لغرض الدراسة والتصميم الأولي.
+      يجب استبدال مواصفات المكونات العامة ببيانات الشركات
+      والمكونات المختارة، واستخدام حمل ساعي حقيقي ومراجعة
+      الكابلات والعاكسات والحماية والاشتراطات المحلية
+      قبل أي تنفيذ فعلي.
+
+    </div>
+
+  </section>
+
+
+  <!-- ERROR -->
+  <p
+    id="error"
+    class="error hidden">
+  </p>
+
+</main>
+
+
+<footer>
+
+  <div>
+    RE-SIZER • PSO + NASA POWER
+  </div>
+
+  <div>
+    Prototype for academic / preliminary sizing
+  </div>
+
+</footer>
+
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+</body>
+</html>
