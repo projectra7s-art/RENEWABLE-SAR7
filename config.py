@@ -43,8 +43,8 @@ SYSTEM = {
 }
 
 PSO = {
-    "particles": 30,
-    "iterations": 50,
+    "particles": 12,
+    "iterations": 15,
     "inertia": 0.70,
     "cognitive": 1.49,
     "social": 1.49,
