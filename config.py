@@ -31,9 +31,9 @@ SYSTEM = {
     "balance_of_system_cost_sar": 5000.0,
 
     # Maximum search limits
-    "max_pv_panels": 50,
-    "max_wind_turbines": 10,
-    "max_batteries": 15,
+    "max_pv_panels": 150,
+    "max_wind_turbines": 50,
+    "max_batteries": 50,
 
     # Target renewable contribution
     "target_renewable_fraction": 0.90,
