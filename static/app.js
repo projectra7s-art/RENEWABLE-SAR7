@@ -14,12 +14,30 @@ L.tileLayer(
 ).addTo(map);
 
 
+// =================================================
+// Location selection
+// =================================================
+
 function selectLocation(lat, lon) {
+
+  // Convert coordinates to valid numbers
+  lat = Number(lat);
+  lon = Number(lon);
+
+  // Keep latitude within the valid geographic range
+  lat = Math.max(-90, Math.min(90, lat));
+
+  // Normalize longitude to the valid range: -180 ... 180
+  lon = ((lon + 180) % 360 + 360) % 360 - 180;
+
   selected.lat = lat;
   selected.lon = lon;
 
-  document.getElementById("latText").textContent = lat.toFixed(6);
-  document.getElementById("lonText").textContent = lon.toFixed(6);
+  document.getElementById("latText").textContent =
+    lat.toFixed(6);
+
+  document.getElementById("lonText").textContent =
+    lon.toFixed(6);
 
   if (marker) {
     map.removeLayer(marker);
@@ -30,12 +48,18 @@ function selectLocation(lat, lon) {
 
 
 map.on("click", (event) => {
+
   selectLocation(
     event.latlng.lat,
     event.latlng.lng
   );
+
 });
 
+
+// =================================================
+// Input mode tabs
+// =================================================
 
 document.querySelectorAll(".tab").forEach((button) => {
 
@@ -68,44 +92,66 @@ document.querySelectorAll(".tab").forEach((button) => {
       document
         .getElementById("billFields")
         .classList.remove("hidden");
+
     }
+
   });
 
 });
 
 
+// =================================================
+// Show / Hide helpers
+// =================================================
+
 function show(id) {
+
   document
     .getElementById(id)
     .classList.remove("hidden");
+
 }
 
 
 function hide(id) {
+
   document
     .getElementById(id)
     .classList.add("hidden");
+
 }
 
 
 function setText(id, value) {
+
   document
     .getElementById(id)
     .textContent = value;
+
 }
 
 
 function money(x) {
+
   return Number(x).toLocaleString("en-US") + " SAR";
+
 }
 
 
 function num(x, decimals = 1) {
+
   return Number(x).toLocaleString("en-US", {
+
     maximumFractionDigits: decimals
+
   });
+
 }
 
+
+// =================================================
+// Run analysis
+// =================================================
 
 async function runAnalysis() {
 
@@ -124,7 +170,9 @@ async function runAnalysis() {
     );
 
     show("error");
+
     return;
+
   }
 
 
@@ -160,7 +208,9 @@ async function runAnalysis() {
     );
 
     show("error");
+
     return;
+
   }
 
 
@@ -189,6 +239,7 @@ async function runAnalysis() {
 
     target_renewable_fraction:
       targetRenewableFraction
+
   };
 
 
@@ -215,7 +266,9 @@ async function runAnalysis() {
       );
 
       show("error");
+
       return;
+
     }
 
   }
@@ -231,6 +284,7 @@ async function runAnalysis() {
       Number(
         document.getElementById("billSar").value
       );
+
 
     payload.effective_tariff =
       Number(
@@ -249,7 +303,9 @@ async function runAnalysis() {
       );
 
       show("error");
+
       return;
+
     }
 
 
@@ -264,7 +320,9 @@ async function runAnalysis() {
       );
 
       show("error");
+
       return;
+
     }
 
   }
@@ -275,6 +333,7 @@ async function runAnalysis() {
   // ---------------------------------------------
 
   hide("results");
+
   show("loading");
 
 
@@ -284,14 +343,19 @@ async function runAnalysis() {
       await fetch(
         "/api/analyze",
         {
+
           method: "POST",
 
           headers: {
-            "Content-Type": "application/json"
+
+            "Content-Type":
+              "application/json"
+
           },
 
           body:
             JSON.stringify(payload)
+
         }
       );
 
@@ -303,8 +367,10 @@ async function runAnalysis() {
     if (!response.ok) {
 
       throw new Error(
+
         data.error ||
         "حدث خطأ أثناء التحليل."
+
       );
 
     }
@@ -325,6 +391,7 @@ async function runAnalysis() {
       data.recommended.pv_panels
     );
 
+
     setText(
       "pvKw",
       `${data.recommended.pv_kw} kW`
@@ -336,6 +403,7 @@ async function runAnalysis() {
       data.recommended.wind_turbines
     );
 
+
     setText(
       "windKw",
       `${data.recommended.wind_kw} kW`
@@ -346,6 +414,7 @@ async function runAnalysis() {
       "batteryUnits",
       data.recommended.battery_units
     );
+
 
     setText(
       "batteryKwh",
@@ -448,38 +517,79 @@ async function runAnalysis() {
       .innerHTML = `
 
         <div>
+
           <span>Latitude</span>
-          <b>${data.location.lat.toFixed(6)}</b>
+
+          <b>
+            ${data.location.lat.toFixed(6)}
+          </b>
+
         </div>
 
+
         <div>
+
           <span>Longitude</span>
-          <b>${data.location.lon.toFixed(6)}</b>
+
+          <b>
+            ${data.location.lon.toFixed(6)}
+          </b>
+
         </div>
 
+
         <div>
+
           <span>Monthly load</span>
-          <b>${num(data.load.monthly_kwh)} kWh</b>
+
+          <b>
+            ${num(data.load.monthly_kwh)} kWh
+          </b>
+
         </div>
 
+
         <div>
+
           <span>Annual load</span>
-          <b>${num(data.load.annual_kwh)} kWh</b>
+
+          <b>
+            ${num(data.load.annual_kwh)} kWh
+          </b>
+
         </div>
 
+
         <div>
+
           <span>Input method</span>
-          <b>${data.load.method}</b>
+
+          <b>
+            ${data.load.method}
+          </b>
+
         </div>
 
+
         <div>
+
           <span>Renewable target</span>
-          <b>${data.target.renewable_fraction_pct}%</b>
+
+          <b>
+            ${data.target.renewable_fraction_pct}%
+          </b>
+
         </div>
 
+
         <div>
+
           <span>NASA year</span>
-          <b>${data.weather.year}</b>
+
+          <b>
+            ${data.weather.year}
+          </b>
+
         </div>
 
       `;
@@ -502,12 +612,14 @@ async function runAnalysis() {
 
 
     window.scrollTo({
+
       top:
         document
           .getElementById("results")
           .offsetTop - 20,
 
       behavior: "smooth"
+
     });
 
 
@@ -515,10 +627,12 @@ async function runAnalysis() {
 
     hide("loading");
 
+
     setText(
       "error",
       error.message
     );
+
 
     show("error");
 
@@ -540,59 +654,83 @@ function renderChart(chart) {
 
 
   if (energyChart) {
+
     energyChart.destroy();
+
   }
 
 
   energyChart =
     new Chart(
+
       canvas,
+
       {
+
         type: "line",
+
 
         data: {
 
           labels:
+
             chart.hours.map(
+
               h => `${h}:00`
+
             ),
+
 
           datasets: [
 
             {
-              label: "الحمل (kW)",
 
-              data: chart.load,
+              label:
+                "الحمل (kW)",
 
-              tension: 0.25,
+              data:
+                chart.load,
 
-              borderWidth: 2
+              tension:
+                0.25,
+
+              borderWidth:
+                2
+
             },
 
 
             {
+
               label:
                 "الطاقة المتجددة (kW)",
 
               data:
                 chart.renewable,
 
-              tension: 0.25,
+              tension:
+                0.25,
 
-              borderWidth: 2
+              borderWidth:
+                2
+
             },
 
 
             {
+
               label:
                 "الشبكة (kW)",
 
               data:
                 chart.grid,
 
-              tension: 0.25,
+              tension:
+                0.25,
 
-              borderWidth: 2
+              borderWidth:
+                2
+
             }
 
           ]
@@ -602,11 +740,18 @@ function renderChart(chart) {
 
         options: {
 
-          responsive: true,
+          responsive:
+            true,
+
 
           interaction: {
-            mode: "index",
-            intersect: false
+
+            mode:
+              "index",
+
+            intersect:
+              false
+
           },
 
 
@@ -614,11 +759,18 @@ function renderChart(chart) {
 
             y: {
 
-              beginAtZero: true,
+              beginAtZero:
+                true,
+
 
               title: {
-                display: true,
-                text: "kW"
+
+                display:
+                  true,
+
+                text:
+                  "kW"
+
               }
 
             }
@@ -628,6 +780,7 @@ function renderChart(chart) {
         }
 
       }
+
     );
 
 }
