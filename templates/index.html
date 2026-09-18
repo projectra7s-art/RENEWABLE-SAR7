@@ -47,8 +47,8 @@
       <p>
         حدد موقع المنزل، أدخل استهلاك الكهرباء أو قيمة الفاتورة،
         وحدد نسبة التغطية المطلوبة بالطاقة المتجددة، وسيجلب النظام
-        بيانات الشمس والرياح ثم يبحث بخوارزمية PSO عن تركيبة مناسبة
-        من الألواح والتوربينات والبطاريات.
+        بيانات الشمس والرياح ثم يبحث بخوارزمية PSO عن أقل تكلفة
+        وأفضل أداء من عدة أنواع من الألواح والتوربينات والبطاريات.
       </p>
     </div>
   </section>
@@ -72,6 +72,7 @@
       <div id="map"></div>
 
       <div class="location-box">
+
         <div>
           <span>Latitude</span>
           <b id="latText">--</b>
@@ -81,6 +82,7 @@
           <span>Longitude</span>
           <b id="lonText">--</b>
         </div>
+
       </div>
 
     </div>
@@ -90,24 +92,32 @@
     <div class="panel">
 
       <div class="panel-title">
+
         <span class="step">02</span>
 
         <div>
           <h2>بيانات الاستهلاك</h2>
           <p>الأدق هو إدخال kWh الظاهر في الفاتورة.</p>
         </div>
+
       </div>
 
 
       <!-- TABS -->
       <div class="tabs">
-        <button class="tab active" data-mode="kwh">
+
+        <button
+          class="tab active"
+          data-mode="kwh">
           إدخال kWh
         </button>
 
-        <button class="tab" data-mode="bill">
+        <button
+          class="tab"
+          data-mode="bill">
           قيمة الفاتورة
         </button>
+
       </div>
 
 
@@ -123,14 +133,15 @@
           type="number"
           min="1"
           step="1"
-          placeholder="مثال: 3000"
-        >
+          placeholder="مثال: 3000">
 
       </div>
 
 
       <!-- BILL -->
-      <div id="billFields" class="hidden">
+      <div
+        id="billFields"
+        class="hidden">
 
         <label for="billSar">
           قيمة الفاتورة الشهرية (ريال)
@@ -141,12 +152,16 @@
           type="number"
           min="1"
           step="1"
-          placeholder="مثال: 850"
-        >
+          placeholder="مثال: 850">
 
 
-        <label class="mt" for="tariff">
-          التعرفة الفعالة المستخدمة للتقدير (ريال/kWh)
+        <label
+          class="mt"
+          for="tariff">
+
+          التعرفة الفعالة المستخدمة للتقدير
+          (ريال/kWh)
+
         </label>
 
         <input
@@ -154,8 +169,7 @@
           type="number"
           min="0.01"
           step="0.001"
-          value="0.18"
-        >
+          value="0.18">
 
 
         <div class="notice">
@@ -174,11 +188,13 @@
       </div>
 
 
-      <!-- TARGET RENEWABLE -->
+      <!-- TARGET -->
       <div class="target-box">
 
         <label for="targetRenewable">
+
           نسبة التغطية بالطاقة المتجددة المطلوبة (%)
+
         </label>
 
         <input
@@ -188,20 +204,25 @@
           max="100"
           step="1"
           value="90"
-          placeholder="مثال: 90"
-        >
+          placeholder="مثال: 90">
 
         <small>
+
           مثال: عند إدخال 90% سيبحث النظام عن نظام قادر
           على تغطية حوالي 90% من استهلاك المنزل بالطاقة المتجددة.
+
         </small>
 
       </div>
 
 
       <!-- YEAR -->
-      <label class="mt" for="year">
+      <label
+        class="mt"
+        for="year">
+
         سنة بيانات NASA POWER
+
       </label>
 
       <input
@@ -209,13 +230,16 @@
         type="number"
         min="2001"
         max="2030"
-        value="2025"
-      >
+        value="2025">
 
 
       <!-- RUN -->
-      <button id="runBtn" class="primary-btn">
+      <button
+        id="runBtn"
+        class="primary-btn">
+
         تشغيل التحليل والتحسين PSO
+
       </button>
 
     </div>
@@ -224,24 +248,30 @@
 
 
   <!-- LOADING -->
-  <section id="loading" class="panel hidden">
+  <section
+    id="loading"
+    class="panel hidden">
 
     <div class="loader"></div>
 
     <div>
+
       <h2>جاري الحساب...</h2>
 
       <p>
         جاري جلب بيانات NASA POWER وتشغيل PSO
         على البيانات الساعية.
       </p>
+
     </div>
 
   </section>
 
 
   <!-- RESULTS -->
-  <section id="results" class="hidden">
+  <section
+    id="results"
+    class="hidden">
 
     <div class="section-head">
 
@@ -260,14 +290,17 @@
       <div
         class="system-pill"
         id="systemType">
+
         --
+
       </div>
 
     </div>
 
 
-    <!-- RESULT CARDS -->
+    <!-- MAIN RESULT CARDS -->
     <div class="cards four">
+
 
       <!-- PV -->
       <div class="result-card">
@@ -283,6 +316,25 @@
         <small id="pvKw">
           --
         </small>
+
+        <div class="component-details">
+
+          <div>
+            <span>النوع</span>
+            <b id="pvType">--</b>
+          </div>
+
+          <div>
+            <span>قدرة اللوح</span>
+            <b id="pvPanelW">--</b>
+          </div>
+
+          <div>
+            <span>السعر/لوح</span>
+            <b id="pvPrice">--</b>
+          </div>
+
+        </div>
 
       </div>
 
@@ -302,6 +354,25 @@
           --
         </small>
 
+        <div class="component-details">
+
+          <div>
+            <span>النوع</span>
+            <b id="windType">--</b>
+          </div>
+
+          <div>
+            <span>قدرة التوربين</span>
+            <b id="windTurbineKw">--</b>
+          </div>
+
+          <div>
+            <span>السعر/توربين</span>
+            <b id="windPrice">--</b>
+          </div>
+
+        </div>
+
       </div>
 
 
@@ -319,6 +390,25 @@
         <small id="batteryKwh">
           --
         </small>
+
+        <div class="component-details">
+
+          <div>
+            <span>النوع</span>
+            <b id="batteryType">--</b>
+          </div>
+
+          <div>
+            <span>سعة الوحدة</span>
+            <b id="batteryUnitKwh">--</b>
+          </div>
+
+          <div>
+            <span>السعر/وحدة</span>
+            <b id="batteryPrice">--</b>
+          </div>
+
+        </div>
 
       </div>
 
@@ -338,6 +428,122 @@
           من إجمالي الطلب
         </small>
 
+        <div class="component-details">
+
+          <div>
+            <span>الهدف المطلوب</span>
+            <b id="targetFraction">--</b>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- SELECTED SYSTEM SUMMARY -->
+    <div class="panel">
+
+      <div class="panel-title inline">
+
+        <div>
+
+          <h2>
+            المكونات التي اختارها PSO
+          </h2>
+
+          <p>
+            تم اختيار النوع والعدد بناءً على بيانات الموقع
+            والاستهلاك والتكلفة والأداء المستهدف.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="metric-grid">
+
+
+        <div>
+
+          <span>
+            اللوح الشمسي المختار
+          </span>
+
+          <b id="selectedPvSummary">
+            --
+          </b>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            التوربين المختار
+          </span>
+
+          <b id="selectedWindSummary">
+            --
+          </b>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            البطارية المختارة
+          </span>
+
+          <b id="selectedBatterySummary">
+            --
+          </b>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            إجمالي قدرة PV
+          </span>
+
+          <b id="selectedPvCapacity">
+            --
+          </b>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            إجمالي قدرة الرياح
+          </span>
+
+          <b id="selectedWindCapacity">
+            --
+          </b>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            إجمالي سعة البطاريات
+          </span>
+
+          <b id="selectedBatteryCapacity">
+            --
+          </b>
+
+        </div>
+
+
       </div>
 
     </div>
@@ -345,6 +551,7 @@
 
     <!-- WEATHER -->
     <div class="grid two">
+
 
       <div class="panel">
 
@@ -354,25 +561,58 @@
 
         <div class="metric-grid">
 
-          <div>
-            <span>NASA valid hours</span>
-            <b id="validHours">--</b>
-          </div>
 
           <div>
-            <span>Average solar</span>
-            <b id="avgSolar">--</b>
+
+            <span>
+              NASA valid hours
+            </span>
+
+            <b id="validHours">
+              --
+            </b>
+
           </div>
 
-          <div>
-            <span>Average wind</span>
-            <b id="avgWind">--</b>
-          </div>
 
           <div>
-            <span>Average load</span>
-            <b id="avgLoad">--</b>
+
+            <span>
+              Average solar
+            </span>
+
+            <b id="avgSolar">
+              --
+            </b>
+
           </div>
+
+
+          <div>
+
+            <span>
+              Average wind
+            </span>
+
+            <b id="avgWind">
+              --
+            </b>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Average load
+            </span>
+
+            <b id="avgLoad">
+              --
+            </b>
+
+          </div>
+
 
         </div>
 
@@ -388,30 +628,71 @@
 
         <div class="metric-grid">
 
-          <div>
-            <span>التغطية المطلوبة</span>
-            <b id="targetFraction">--</b>
-          </div>
 
           <div>
-            <span>Estimated capital cost</span>
-            <b id="capitalCost">--</b>
+
+            <span>
+              التغطية المطلوبة
+            </span>
+
+            <b id="targetFractionPerformance">
+              --
+            </b>
+
           </div>
 
-          <div>
-            <span>Grid energy / year</span>
-            <b id="gridEnergy">--</b>
-          </div>
 
           <div>
-            <span>Unserved energy</span>
-            <b id="unserved">--</b>
+
+            <span>
+              Estimated capital cost
+            </span>
+
+            <b id="capitalCost">
+              --
+            </b>
+
           </div>
 
+
           <div>
-            <span>Curtailed energy</span>
-            <b id="curtailed">--</b>
+
+            <span>
+              Grid energy / year
+            </span>
+
+            <b id="gridEnergy">
+              --
+            </b>
+
           </div>
+
+
+          <div>
+
+            <span>
+              Unserved energy
+            </span>
+
+            <b id="unserved">
+              --
+            </b>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Curtailed energy
+            </span>
+
+            <b id="curtailed">
+              --
+            </b>
+
+          </div>
+
 
         </div>
 

@@ -3,6 +3,11 @@ let marker = null;
 let selected = { lat: null, lon: null };
 let energyChart = null;
 
+
+// =================================================
+// MAP
+// =================================================
+
 const map = L.map("map").setView([20, 0], 2);
 
 L.tileLayer(
@@ -15,101 +20,145 @@ L.tileLayer(
 
 
 // =================================================
-// Location selection
+// LOCATION SELECTION
 // =================================================
 
 function selectLocation(lat, lon) {
 
-  // Convert coordinates to valid numbers
   lat = Number(lat);
   lon = Number(lon);
 
-  // Keep latitude within the valid geographic range
-  lat = Math.max(-90, Math.min(90, lat));
+  // Keep latitude valid
+  lat = Math.max(
+    -90,
+    Math.min(90, lat)
+  );
 
-  // Normalize longitude to the valid range: -180 ... 180
-  lon = ((lon + 180) % 360 + 360) % 360 - 180;
+  // Normalize longitude
+  lon =
+    ((lon + 180) % 360 + 360) % 360
+    - 180;
 
   selected.lat = lat;
   selected.lon = lon;
 
-  document.getElementById("latText").textContent =
-    lat.toFixed(6);
+  setText(
+    "latText",
+    lat.toFixed(6)
+  );
 
-  document.getElementById("lonText").textContent =
-    lon.toFixed(6);
+  setText(
+    "lonText",
+    lon.toFixed(6)
+  );
 
   if (marker) {
     map.removeLayer(marker);
   }
 
-  marker = L.marker([lat, lon]).addTo(map);
+  marker = L.marker([
+    lat,
+    lon
+  ]).addTo(map);
 }
 
 
-map.on("click", (event) => {
+map.on(
+  "click",
+  (event) => {
 
-  selectLocation(
-    event.latlng.lat,
-    event.latlng.lng
-  );
+    selectLocation(
+      event.latlng.lat,
+      event.latlng.lng
+    );
 
-});
+  }
+);
 
 
 // =================================================
-// Input mode tabs
+// INPUT MODE TABS
 // =================================================
 
-document.querySelectorAll(".tab").forEach((button) => {
+document
+  .querySelectorAll(".tab")
+  .forEach((button) => {
 
-  button.addEventListener("click", () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-    document
-      .querySelectorAll(".tab")
-      .forEach((b) => b.classList.remove("active"));
+        document
+          .querySelectorAll(".tab")
+          .forEach(
+            (b) =>
+              b.classList.remove(
+                "active"
+              )
+          );
 
-    button.classList.add("active");
+        button.classList.add(
+          "active"
+        );
 
-    mode = button.dataset.mode;
+        mode =
+          button.dataset.mode;
 
-    if (mode === "kwh") {
+        if (mode === "kwh") {
 
-      document
-        .getElementById("kwhFields")
-        .classList.remove("hidden");
+          document
+            .getElementById(
+              "kwhFields"
+            )
+            .classList.remove(
+              "hidden"
+            );
 
-      document
-        .getElementById("billFields")
-        .classList.add("hidden");
+          document
+            .getElementById(
+              "billFields"
+            )
+            .classList.add(
+              "hidden"
+            );
 
-    } else {
+        } else {
 
-      document
-        .getElementById("kwhFields")
-        .classList.add("hidden");
+          document
+            .getElementById(
+              "kwhFields"
+            )
+            .classList.add(
+              "hidden"
+            );
 
-      document
-        .getElementById("billFields")
-        .classList.remove("hidden");
+          document
+            .getElementById(
+              "billFields"
+            )
+            .classList.remove(
+              "hidden"
+            );
 
-    }
+        }
+
+      }
+    );
 
   });
 
-});
-
 
 // =================================================
-// Show / Hide helpers
+// UI HELPERS
 // =================================================
 
 function show(id) {
 
   document
     .getElementById(id)
-    .classList.remove("hidden");
-
+    .classList.remove(
+      "hidden"
+    );
 }
 
 
@@ -117,40 +166,57 @@ function hide(id) {
 
   document
     .getElementById(id)
-    .classList.add("hidden");
-
+    .classList.add(
+      "hidden"
+    );
 }
 
 
 function setText(id, value) {
 
-  document
-    .getElementById(id)
-    .textContent = value;
+  const element =
+    document.getElementById(id);
+
+  if (element) {
+
+    element.textContent =
+      value;
+
+  }
+}
+
+
+function money(value) {
+
+  return Number(
+    value
+  ).toLocaleString(
+    "en-US"
+  ) + " SAR";
 
 }
 
 
-function money(x) {
+function num(
+  value,
+  decimals = 1
+) {
 
-  return Number(x).toLocaleString("en-US") + " SAR";
-
-}
-
-
-function num(x, decimals = 1) {
-
-  return Number(x).toLocaleString("en-US", {
-
-    maximumFractionDigits: decimals
-
-  });
+  return Number(
+    value
+  ).toLocaleString(
+    "en-US",
+    {
+      maximumFractionDigits:
+        decimals
+    }
+  );
 
 }
 
 
 // =================================================
-// Run analysis
+// RUN ANALYSIS
 // =================================================
 
 async function runAnalysis() {
@@ -162,7 +228,10 @@ async function runAnalysis() {
   // Check location
   // ---------------------------------------------
 
-  if (selected.lat === null) {
+  if (
+    selected.lat === null ||
+    selected.lon === null
+  ) {
 
     setText(
       "error",
@@ -172,17 +241,18 @@ async function runAnalysis() {
     show("error");
 
     return;
-
   }
 
 
   // ---------------------------------------------
-  // Read basic inputs
+  // Read year
   // ---------------------------------------------
 
   const year =
     Number(
-      document.getElementById("year").value
+      document
+        .getElementById("year")
+        .value
     );
 
 
@@ -192,7 +262,11 @@ async function runAnalysis() {
 
   const targetRenewable =
     Number(
-      document.getElementById("targetRenewable").value
+      document
+        .getElementById(
+          "targetRenewable"
+        )
+        .value
     );
 
 
@@ -210,13 +284,11 @@ async function runAnalysis() {
     show("error");
 
     return;
-
   }
 
 
   // ---------------------------------------------
   // Convert percentage to fraction
-  // Example: 90% → 0.90
   // ---------------------------------------------
 
   const targetRenewableFraction =
@@ -224,18 +296,22 @@ async function runAnalysis() {
 
 
   // ---------------------------------------------
-  // Build API payload
+  // API PAYLOAD
   // ---------------------------------------------
 
   const payload = {
 
-    lat: selected.lat,
+    lat:
+      selected.lat,
 
-    lon: selected.lon,
+    lon:
+      selected.lon,
 
-    input_mode: mode,
+    input_mode:
+      mode,
 
-    year: year,
+    year:
+      year,
 
     target_renewable_fraction:
       targetRenewableFraction
@@ -244,14 +320,18 @@ async function runAnalysis() {
 
 
   // ---------------------------------------------
-  // KWh input
+  // KWH MODE
   // ---------------------------------------------
 
   if (mode === "kwh") {
 
     payload.monthly_kwh =
       Number(
-        document.getElementById("monthlyKwh").value
+        document
+          .getElementById(
+            "monthlyKwh"
+          )
+          .value
       );
 
 
@@ -268,27 +348,34 @@ async function runAnalysis() {
       show("error");
 
       return;
-
     }
 
   }
 
 
   // ---------------------------------------------
-  // Bill input
+  // BILL MODE
   // ---------------------------------------------
 
   else {
 
     payload.bill_sar =
       Number(
-        document.getElementById("billSar").value
+        document
+          .getElementById(
+            "billSar"
+          )
+          .value
       );
 
 
     payload.effective_tariff =
       Number(
-        document.getElementById("tariff").value
+        document
+          .getElementById(
+            "tariff"
+          )
+          .value
       );
 
 
@@ -305,7 +392,6 @@ async function runAnalysis() {
       show("error");
 
       return;
-
     }
 
 
@@ -322,14 +408,13 @@ async function runAnalysis() {
       show("error");
 
       return;
-
     }
 
   }
 
 
   // ---------------------------------------------
-  // Start loading
+  // LOADING
   // ---------------------------------------------
 
   hide("results");
@@ -344,7 +429,8 @@ async function runAnalysis() {
         "/api/analyze",
         {
 
-          method: "POST",
+          method:
+            "POST",
 
           headers: {
 
@@ -354,7 +440,9 @@ async function runAnalysis() {
           },
 
           body:
-            JSON.stringify(payload)
+            JSON.stringify(
+              payload
+            )
 
         }
       );
@@ -367,24 +455,26 @@ async function runAnalysis() {
     if (!response.ok) {
 
       throw new Error(
-
         data.error ||
         "حدث خطأ أثناء التحليل."
-
       );
 
     }
 
 
-    // ---------------------------------------------
-    // System recommendation
-    // ---------------------------------------------
+    // =================================================
+    // SYSTEM TYPE
+    // =================================================
 
     setText(
       "systemType",
       data.recommended.system_type
     );
 
+
+    // =================================================
+    // PV RESULT
+    // =================================================
 
     setText(
       "pvPanels",
@@ -399,6 +489,33 @@ async function runAnalysis() {
 
 
     setText(
+      "pvType",
+      data.recommended.pv_type
+    );
+
+
+    setText(
+      "pvPanelW",
+      `${num(
+        data.recommended.pv_panel_w,
+        0
+      )} W`
+    );
+
+
+    setText(
+      "pvPrice",
+      money(
+        data.assumptions.pv_price_sar
+      )
+    );
+
+
+    // =================================================
+    // WIND RESULT
+    // =================================================
+
+    setText(
       "windTurbines",
       data.recommended.wind_turbines
     );
@@ -409,6 +526,30 @@ async function runAnalysis() {
       `${data.recommended.wind_kw} kW`
     );
 
+
+    setText(
+      "windType",
+      data.recommended.wind_type
+    );
+
+
+    setText(
+      "windTurbineKw",
+      `${data.recommended.wind_turbine_kw} kW`
+    );
+
+
+    setText(
+      "windPrice",
+      money(
+        data.assumptions.wind_price_sar
+      )
+    );
+
+
+    // =================================================
+    // BATTERY RESULT
+    // =================================================
 
     setText(
       "batteryUnits",
@@ -422,9 +563,29 @@ async function runAnalysis() {
     );
 
 
-    // ---------------------------------------------
-    // Renewable coverage
-    // ---------------------------------------------
+    setText(
+      "batteryType",
+      data.recommended.battery_type
+    );
+
+
+    setText(
+      "batteryUnitKwh",
+      `${data.recommended.battery_unit_kwh} kWh`
+    );
+
+
+    setText(
+      "batteryPrice",
+      money(
+        data.assumptions.battery_price_sar
+      )
+    );
+
+
+    // =================================================
+    // RENEWABLE COVERAGE
+    // =================================================
 
     setText(
       "renewableFraction",
@@ -432,9 +593,61 @@ async function runAnalysis() {
     );
 
 
-    // ---------------------------------------------
-    // Weather
-    // ---------------------------------------------
+    setText(
+      "targetFraction",
+      `${data.target.renewable_fraction_pct}%`
+    );
+
+
+    setText(
+      "targetFractionPerformance",
+      `${data.target.renewable_fraction_pct}%`
+    );
+
+
+    // =================================================
+    // SELECTED COMPONENT SUMMARY
+    // =================================================
+
+    setText(
+      "selectedPvSummary",
+      `${data.recommended.pv_type} — ${data.recommended.pv_panel_w} W — ${money(data.assumptions.pv_price_sar)} / لوح`
+    );
+
+
+    setText(
+      "selectedWindSummary",
+      `${data.recommended.wind_type} — ${data.recommended.wind_turbine_kw} kW — ${money(data.assumptions.wind_price_sar)} / توربين`
+    );
+
+
+    setText(
+      "selectedBatterySummary",
+      `${data.recommended.battery_type} — ${data.recommended.battery_unit_kwh} kWh — ${money(data.assumptions.battery_price_sar)} / وحدة`
+    );
+
+
+    setText(
+      "selectedPvCapacity",
+      `${data.recommended.pv_kw} kW`
+    );
+
+
+    setText(
+      "selectedWindCapacity",
+      `${data.recommended.wind_kw} kW`
+    );
+
+
+    setText(
+      "selectedBatteryCapacity",
+      `${data.recommended.battery_kwh} kWh`
+    );
+
+
+    // =================================================
+    // WEATHER
+    // =================================================
 
     setText(
       "validHours",
@@ -447,7 +660,7 @@ async function runAnalysis() {
 
     setText(
       "avgSolar",
-      `${data.weather.average_solar}`
+      `${data.weather.average_solar} W/m²`
     );
 
 
@@ -463,15 +676,9 @@ async function runAnalysis() {
     );
 
 
-    // ---------------------------------------------
-    // Performance
-    // ---------------------------------------------
-
-    setText(
-      "targetFraction",
-      `${data.target.renewable_fraction_pct}%`
-    );
-
+    // =================================================
+    // ECONOMICS
+    // =================================================
 
     setText(
       "capitalCost",
@@ -508,20 +715,26 @@ async function runAnalysis() {
     );
 
 
-    // ---------------------------------------------
-    // Input summary
-    // ---------------------------------------------
+    // =================================================
+    // INPUT SUMMARY
+    // =================================================
 
     document
-      .getElementById("inputSummary")
+      .getElementById(
+        "inputSummary"
+      )
       .innerHTML = `
 
         <div>
 
-          <span>Latitude</span>
+          <span>
+            Latitude
+          </span>
 
           <b>
-            ${data.location.lat.toFixed(6)}
+            ${Number(
+              data.location.lat
+            ).toFixed(6)}
           </b>
 
         </div>
@@ -529,10 +742,14 @@ async function runAnalysis() {
 
         <div>
 
-          <span>Longitude</span>
+          <span>
+            Longitude
+          </span>
 
           <b>
-            ${data.location.lon.toFixed(6)}
+            ${Number(
+              data.location.lon
+            ).toFixed(6)}
           </b>
 
         </div>
@@ -540,10 +757,14 @@ async function runAnalysis() {
 
         <div>
 
-          <span>Monthly load</span>
+          <span>
+            Monthly load
+          </span>
 
           <b>
-            ${num(data.load.monthly_kwh)} kWh
+            ${num(
+              data.load.monthly_kwh
+            )} kWh
           </b>
 
         </div>
@@ -551,10 +772,14 @@ async function runAnalysis() {
 
         <div>
 
-          <span>Annual load</span>
+          <span>
+            Annual load
+          </span>
 
           <b>
-            ${num(data.load.annual_kwh)} kWh
+            ${num(
+              data.load.annual_kwh
+            )} kWh
           </b>
 
         </div>
@@ -562,7 +787,22 @@ async function runAnalysis() {
 
         <div>
 
-          <span>Input method</span>
+          <span>
+            Average load
+          </span>
+
+          <b>
+            ${data.load.average_kw} kW
+          </b>
+
+        </div>
+
+
+        <div>
+
+          <span>
+            Input method
+          </span>
 
           <b>
             ${data.load.method}
@@ -573,7 +813,9 @@ async function runAnalysis() {
 
         <div>
 
-          <span>Renewable target</span>
+          <span>
+            Renewable target
+          </span>
 
           <b>
             ${data.target.renewable_fraction_pct}%
@@ -584,7 +826,9 @@ async function runAnalysis() {
 
         <div>
 
-          <span>NASA year</span>
+          <span>
+            NASA year
+          </span>
 
           <b>
             ${data.weather.year}
@@ -595,16 +839,18 @@ async function runAnalysis() {
       `;
 
 
-    // ---------------------------------------------
-    // Chart
-    // ---------------------------------------------
+    // =================================================
+    // CHART
+    // =================================================
 
-    renderChart(data.chart);
+    renderChart(
+      data.chart
+    );
 
 
-    // ---------------------------------------------
-    // Show results
-    // ---------------------------------------------
+    // =================================================
+    // SHOW RESULTS
+    // =================================================
 
     hide("loading");
 
@@ -615,10 +861,13 @@ async function runAnalysis() {
 
       top:
         document
-          .getElementById("results")
+          .getElementById(
+            "results"
+          )
           .offsetTop - 20,
 
-      behavior: "smooth"
+      behavior:
+        "smooth"
 
     });
 
@@ -627,12 +876,10 @@ async function runAnalysis() {
 
     hide("loading");
 
-
     setText(
       "error",
       error.message
     );
-
 
     show("error");
 
@@ -642,7 +889,7 @@ async function runAnalysis() {
 
 
 // =================================================
-// Chart
+// CHART
 // =================================================
 
 function renderChart(chart) {
@@ -651,6 +898,11 @@ function renderChart(chart) {
     document.getElementById(
       "energyChart"
     );
+
+
+  if (!canvas) {
+    return;
+  }
 
 
   if (energyChart) {
@@ -667,7 +919,8 @@ function renderChart(chart) {
 
       {
 
-        type: "line",
+        type:
+          "line",
 
 
         data: {
@@ -675,9 +928,8 @@ function renderChart(chart) {
           labels:
 
             chart.hours.map(
-
-              h => `${h}:00`
-
+              h =>
+                `${h}:00`
             ),
 
 
@@ -762,7 +1014,6 @@ function renderChart(chart) {
               beginAtZero:
                 true,
 
-
               title: {
 
                 display:
@@ -787,11 +1038,13 @@ function renderChart(chart) {
 
 
 // =================================================
-// Run button
+// RUN BUTTON
 // =================================================
 
 document
-  .getElementById("runBtn")
+  .getElementById(
+    "runBtn"
+  )
   .addEventListener(
     "click",
     runAnalysis
