@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: re-sizer
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Render provides the port in $PORT. The timeout is longer than
+    # gunicorn's default (30 s) because NASA POWER + PSO can take a while.
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 1 app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
